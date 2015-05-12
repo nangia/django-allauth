@@ -1,8 +1,14 @@
 import django
 from django.contrib import admin
 
-from .models import EmailConfirmation, EmailAddress
+from .models import EmailConfirmation, EmailAddress, PhoneVerification
 from .adapter import get_adapter
+
+
+class PhoneVerificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created', 'key', 'verified')
+    list_filter = ('user', 'created', 'verified')
+    raw_id_fields = ('user',)
 
 
 class EmailAddressAdmin(admin.ModelAdmin):
@@ -29,3 +35,4 @@ class EmailConfirmationAdmin(admin.ModelAdmin):
 
 admin.site.register(EmailConfirmation, EmailConfirmationAdmin)
 admin.site.register(EmailAddress, EmailAddressAdmin)
+admin.site.register(PhoneVerification, PhoneVerificationAdmin)

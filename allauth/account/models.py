@@ -21,6 +21,14 @@ from .managers import EmailAddressManager, EmailConfirmationManager
 from .adapter import get_adapter
 
 
+class PhoneVerification(models.Model):
+    user = models.ForeignKey(allauth_app_settings.USER_MODEL,
+                             verbose_name=_('user'), db_index=True)
+    created = models.DateTimeField(auto_now_add=True)
+    key = models.CharField(max_length=10)
+    verified = models.BooleanField(default=False)
+
+
 @python_2_unicode_compatible
 class EmailAddress(models.Model):
 

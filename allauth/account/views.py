@@ -663,3 +663,8 @@ class EmailVerificationSentView(TemplateView):
     template_name = 'account/verification_sent.html'
 
 email_verification_sent = EmailVerificationSentView.as_view()
+
+
+class PhoneVerificationSentView(TemplateView):
+    template_name = 'account/phone_verification_sent.html'
+

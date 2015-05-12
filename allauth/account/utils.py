@@ -92,7 +92,9 @@ def user_username(user, *args):
 def user_email(user, *args):
     return user_field(user, app_settings.USER_MODEL_EMAIL_FIELD, *args)
 
+from utility.sms import sendMessage
 
+import random 
 def perform_login(request, user, email_verification,
                   redirect_url=None, signal_kwargs=None,
                   signup=False):
@@ -103,9 +105,35 @@ def perform_login(request, user, email_verification,
     email is essential (during signup), or if it can be skipped (e.g. in
     case email verification is optional and we are only logging in).
     """
-    from .models import EmailAddress
+    from .models import EmailAddress, PhoneVerification
+    has_verified_phone = False
+    try:
+        phoneObj = PhoneVerification.objects.get(user=user)
+        if phoneObj.verified:
+            has_verified_phone = True
+    except PhoneVerification.DoesNotExist:
+        phoneObj = None
+
+    if has_verified_phone:
+        pass
+    else:
+
+        confirmationCode =  "%04d" % random.randrange(1,10000)
+        if phoneObj:
+            phoneObj.key = confirmationCode
+        else:
+            phoneObj = PhoneVerification(user=user, key=confirmationCode)
+        phoneObj.save()
+
+        sendMessage(user.username, 
+                    "Your confirmation code is %s" % confirmationCode)
+        return HttpResponseRedirect(
+            reverse('phone_verification_sent'))
+        
+
     has_verified_email = EmailAddress.objects.filter(user=user,
                                                      verified=True).exists()
+
     if email_verification == EmailVerificationMethod.NONE:
         pass
     elif email_verification == EmailVerificationMethod.OPTIONAL:

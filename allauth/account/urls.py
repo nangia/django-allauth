@@ -19,9 +19,10 @@ urlpatterns = patterns(
     url(r"^email/$", views.email, name="account_email"),
     url(r"^confirm-email/$", views.email_verification_sent,
         name="account_email_verification_sent"),
-    url(r"^confirm-phone-code/$", views.PhoneVerificationSentView.as_view(),
+    url(r"^confirm-phone-code/$", views.PhoneVerificationView,
         name="phone_verification_sent"),
-
+    url(r"^thanks-and-verified/$", views.ThanksAndVerified.as_view(),
+        name="thanks-and-verified"),
     url(r"^confirm-email/(?P<key>\w+)/$", views.confirm_email,
         name="account_confirm_email"),
     # Handle old redirects

@@ -462,3 +462,8 @@ class ResetPasswordKeyForm(forms.Form):
 
     def save(self):
         get_adapter().set_password(self.user, self.cleaned_data["password1"])
+
+
+class PhoneVerificationForm(forms.Form):
+    phone = forms.CharField(max_length=12)
+    key = forms.CharField(max_length=10)

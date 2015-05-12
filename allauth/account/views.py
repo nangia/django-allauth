@@ -23,8 +23,9 @@ from .utils import (get_next_redirect_url, complete_signup,
 from .forms import AddEmailForm, ChangePasswordForm
 from .forms import LoginForm, ResetPasswordKeyForm
 from .forms import ResetPasswordForm, SetPasswordForm, SignupForm
+from .forms import PhoneVerificationForm
 from .utils import sync_user_email_addresses
-from .models import EmailAddress, EmailConfirmation
+from .models import EmailAddress, EmailConfirmation, PhoneVerification
 
 from . import signals
 from . import app_settings
@@ -665,6 +666,35 @@ class EmailVerificationSentView(TemplateView):
 email_verification_sent = EmailVerificationSentView.as_view()
 
 
-class PhoneVerificationSentView(TemplateView):
-    template_name = 'account/phone_verification_sent.html'
+class ThanksAndVerified(TemplateView):
+    template_name = 'account/thanks_and_verified.html'
 
+from django.shortcuts import render
+
+def PhoneVerificationView(request):
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = PhoneVerificationForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            username = form.cleaned_data['phone']
+            key = form.cleaned_data['key']
+            try:
+                phoneObj = PhoneVerification.objects.get(user__username=username,
+                                                         key=key)
+                phoneObj.verified = True
+                phoneObj.save()
+            except PhoneVerification.DoesNotExist:
+                phoneObj = None
+                return render(request, 'account/phone_verification_sent.html', 
+                              {'form': form})
+
+            return HttpResponseRedirect(reverse("thanks-and-verified"))
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = PhoneVerificationForm()
+
+    return render(request, 'account/phone_verification_sent.html', 
+                  {'form': form})

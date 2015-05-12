@@ -1,0 +1,13 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Verify Your Phone Number" %}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Verify Your Phone Number" %}</h1>
+
+    <p> Thank you. Your phone has now been verified. You can log in after going to <a href="{% url "account_login" %}">this page</a> now.</p>
+
+
+{% endblock %}

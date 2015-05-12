@@ -9,4 +9,10 @@
 
     <p>{% blocktrans %}We have sent an SMS to you for verification with a verification code. Enter that code to complete verification process. {% endblocktrans %}</p>
 
+<form action="{% url "phone_verification_sent" %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit" />
+</form>
+
 {% endblock %}

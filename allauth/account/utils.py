@@ -117,7 +117,6 @@ def perform_login(request, user, email_verification,
     if has_verified_phone:
         pass
     else:
-
         confirmationCode =  "%04d" % random.randrange(1,10000)
         if phoneObj:
             phoneObj.key = confirmationCode
@@ -125,11 +124,18 @@ def perform_login(request, user, email_verification,
             phoneObj = PhoneVerification(user=user, key=confirmationCode)
         phoneObj.save()
 
-        sendMessage(user.username, 
+        (errcode, errmsg) = sendMessage(user.username, 
                     "Your confirmation code is %s" % confirmationCode)
-        return HttpResponseRedirect(
-            reverse('phone_verification_sent'))
-        
+        from rest_framework.status import is_success
+        if not is_success(errcode):
+            print errmsg
+            print "Error code = %d" % errcode
+            return HttpResponseRedirect(
+                reverse('sending_sms_failed'))
+        else:
+            return HttpResponseRedirect(
+                reverse('phone_verification_sent'))
+
 
     has_verified_email = EmailAddress.objects.filter(user=user,
                                                      verified=True).exists()

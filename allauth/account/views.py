@@ -25,7 +25,7 @@ from .forms import LoginForm, ResetPasswordKeyForm
 from .forms import ResetPasswordForm, SetPasswordForm, SignupForm
 from .forms import PhoneVerificationForm
 from .utils import sync_user_email_addresses
-from .models import EmailAddress, EmailConfirmation, PhoneVerification
+from .models import EmailAddress, EmailConfirmation
 
 from . import signals
 from . import app_settings
@@ -678,23 +678,9 @@ def PhoneVerificationView(request):
         form = PhoneVerificationForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            username = form.cleaned_data['phone']
-            key = form.cleaned_data['key']
-            try:
-                phoneObj = PhoneVerification.objects.get(user__username=username,
-                                                         key=key)
-                phoneObj.verified = True
-                phoneObj.save()
-            except PhoneVerification.DoesNotExist:
-                phoneObj = None
-                return render(request, 'account/phone_verification_sent.html', 
-                              {'form': form})
-
-            return HttpResponseRedirect(reverse("thanks-and-verified"))
-
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = PhoneVerificationForm()
-
+            if form.verifyPhone():
+                # success 
+                return HttpResponseRedirect(reverse("thanks-and-verified"))
+    form = PhoneVerificationForm()
     return render(request, 'account/phone_verification_sent.html', 
                   {'form': form})

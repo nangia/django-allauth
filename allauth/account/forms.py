@@ -463,7 +463,33 @@ class ResetPasswordKeyForm(forms.Form):
     def save(self):
         get_adapter().set_password(self.user, self.cleaned_data["password1"])
 
+import re
 
+from .models import PhoneVerification
 class PhoneVerificationForm(forms.Form):
     phone = forms.CharField(max_length=12)
     key = forms.CharField(max_length=10)
+    def clean_phone(self):
+        data = self.cleaned_data['phone']
+        if not re.match("^[0-9]+$", data):
+            raise forms.ValidationError("Phone must be numeric")
+        return data
+
+    def clean_key(self):
+        data = self.cleaned_data['key']
+        if not re.match("^[0-9]+$", data):
+            raise forms.ValidationError("Key must be numeric")
+        return data
+    def verifyPhone(self):
+        username = self.cleaned_data['phone']
+        key = self.cleaned_data['key']
+        try:
+            phoneObj = PhoneVerification.objects.get(user__username=username,
+                                                     key=key)
+            phoneObj.verified = True
+            phoneObj.save()
+            return True
+        except PhoneVerification.DoesNotExist:
+            pass
+        return False
+            

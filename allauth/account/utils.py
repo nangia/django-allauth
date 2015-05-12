@@ -128,6 +128,7 @@ def perform_login(request, user, email_verification,
                     "Your confirmation code is %s" % confirmationCode)
         from rest_framework.status import is_success
         if not is_success(errcode):
+            print "username=%s", username
             print errmsg
             print "Error code = %d" % errcode
             return HttpResponseRedirect(

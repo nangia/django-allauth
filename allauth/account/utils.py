@@ -28,6 +28,10 @@ from . import signals
 from .app_settings import EmailVerificationMethod
 from . import app_settings
 from .adapter import get_adapter
+from rest_framework.status import is_success
+from utility.sms import sendMessage
+import random 
+
 
 
 def get_next_redirect_url(request, redirect_field_name="next"):
@@ -92,9 +96,24 @@ def user_username(user, *args):
 def user_email(user, *args):
     return user_field(user, app_settings.USER_MODEL_EMAIL_FIELD, *args)
 
-from utility.sms import sendMessage
 
-import random 
+def sendPhoneVerification(user):    
+    try:
+        from .models import PhoneVerification
+        phoneObj = PhoneVerification.objects.get(user=user)
+        key = phoneObj.key
+        (errcode, errmsg) = sendMessage(user.username, 
+                    "Your confirmation code is %s" % key)
+        if not is_success(errcode):
+            print "username=%s", username
+            print errmsg
+            print "Error code = %d" % errcode
+            return False
+        else:
+            return True
+    except PhoneVerification.DoesNotExist:
+        return False
+ 
 def perform_login(request, user, email_verification,
                   redirect_url=None, signal_kwargs=None,
                   signup=False):
@@ -126,7 +145,7 @@ def perform_login(request, user, email_verification,
 
         (errcode, errmsg) = sendMessage(user.username, 
                     "Your confirmation code is %s" % confirmationCode)
-        from rest_framework.status import is_success
+
         if not is_success(errcode):
             print "username=%s", username
             print errmsg
@@ -137,7 +156,7 @@ def perform_login(request, user, email_verification,
             return HttpResponseRedirect(
                 reverse('phone_verification_sent'))
 
-
+    from .models import EmailAddress, PhoneVerification
     has_verified_email = EmailAddress.objects.filter(user=user,
                                                      verified=True).exists()
 

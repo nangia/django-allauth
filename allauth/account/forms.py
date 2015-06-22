@@ -18,7 +18,7 @@ from ..utils import (email_address_exists, get_user_model,
 
 from .models import EmailAddress
 from .utils import (perform_login, setup_user_email, user_username,
-                    user_pk_to_url_str)
+                    user_pk_to_url_str, sendPhoneVerification)
 from .app_settings import AuthenticationMethod
 from . import app_settings
 from .adapter import get_adapter
@@ -492,4 +492,18 @@ class PhoneVerificationForm(forms.Form):
         except PhoneVerification.DoesNotExist:
             pass
         return False
-            
+
+class ResendPhoneVerificationCodeForm(forms.Form):
+    phone = forms.CharField(max_length=12)
+    def clean_phone(self):
+        self.data = self.cleaned_data['phone']
+        if not re.match("^[0-9]+$", self.data):
+            raise forms.ValidationError("Phone must be numeric")
+        return self.data
+    def sendPhoneVerificationCode(self):
+        try:
+            user = get_user_model().objects.get(username=self.data)
+            return sendPhoneVerification(user)
+        except:
+            print "Exception raised in ResendPhoneVerificationCodeForm"
+            return False

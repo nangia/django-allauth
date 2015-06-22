@@ -20,7 +20,7 @@ from .utils import (get_next_redirect_url, complete_signup,
                     get_login_redirect_url, perform_login,
                     passthrough_next_redirect_url,
                     url_str_to_user_pk)
-from .forms import AddEmailForm, ChangePasswordForm
+from .forms import AddEmailForm, ChangePasswordForm, ResendPhoneVerificationCodeForm
 from .forms import LoginForm, ResetPasswordKeyForm
 from .forms import ResetPasswordForm, SetPasswordForm, SignupForm
 from .forms import PhoneVerificationForm
@@ -683,4 +683,15 @@ def PhoneVerificationView(request):
                 return HttpResponseRedirect(reverse("thanks-and-verified"))
     form = PhoneVerificationForm()
     return render(request, 'account/phone_verification_sent.html', 
+                  {'form': form})
+
+
+def ResendPhoneCodeView(request):
+    if request.method == 'POST':
+        form = ResendPhoneVerificationCodeForm(request.POST)
+        if form.is_valid():
+            form.sendPhoneVerificationCode()
+            return HttpResponseRedirect(reverse("phone_verification_sent"))
+    form = ResendPhoneVerificationCodeForm()
+    return render(request, 'account/resend_phone_verification.html', 
                   {'form': form})

@@ -147,7 +147,7 @@ def perform_login(request, user, email_verification,
                     "Your confirmation code is %s" % confirmationCode)
 
         if not is_success(errcode):
-            print "username=%s", username
+            print "username=%s", user.username
             print errmsg
             print "Error code = %d" % errcode
             return HttpResponseRedirect(

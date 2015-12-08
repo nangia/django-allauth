@@ -28,6 +28,9 @@ class PhoneVerification(models.Model):
     key = models.CharField(max_length=10)
     verified = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        return u"{0} {1}".format(self.user.username, self.verified)
+
 
 @python_2_unicode_compatible
 class EmailAddress(models.Model):
